@@ -126,7 +126,3 @@ Ez elindítja a grafikus felületet, ahol kiválaszthatod az időintervallumot �
 - Ellenőrizd, hogy a megfelelő API kulcs és adatbázis-azonosító szerepel-e a `.env` fájlban.
 - Győződj meg róla, hogy minden modul telepítve van és naprakész a `pip list` parancs segítségével.
 
-## Licenc
-
-Ez a projekt MIT licenc alatt van kiadva. Részletekért lásd a [LICENSE](LICENSE) fájlt.
-
