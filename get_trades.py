@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import pandas as pd
 import time
+import pytz
 
 load_dotenv()
 
@@ -22,9 +23,7 @@ class trade():
         self.profit = float(profit)
         self.entry = entry
         self._exit = _exit
-        # self.duration = float(duration) if duration is not None else None
 
-# Notion API details
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 NOTION_DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
 
@@ -56,6 +55,23 @@ def trade_exists_in_notion(position_id):
         print(f"Failed to query Notion. Status code: {response.status_code}")
         return False
 
+def convert_to_new_york_time(time):
+    new_york_tz = pytz.timezone('America/New_York')
+
+    if isinstance(time, str):
+        try:
+            time = dt.datetime.fromisoformat(time)
+        except ValueError:
+            print(f"Failed to parse datetime from string: {time}")
+            return time
+
+    if time.tzinfo is None:
+        time = pytz.utc.localize(time)
+
+    time_in_new_york = time.astimezone(new_york_tz)
+    time_in_new_york = time_in_new_york - dt.timedelta(hours=3)
+    return time_in_new_york
+
 def send_to_notion(trade):
     if trade_exists_in_notion(trade.position_id):
         print(f"Trade with position ID {trade.position_id} already exists in Notion. Skipping.")
@@ -67,18 +83,19 @@ def send_to_notion(trade):
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"
     }
-    
-    entry_time = trade.entry.isoformat() if isinstance(trade.entry, dt.datetime) else str(trade.entry)
-    exit_time = trade._exit.isoformat() if isinstance(trade._exit, dt.datetime) else str(trade._exit)
-    
+
+    entry_time = convert_to_new_york_time(trade.entry)
+    exit_time = convert_to_new_york_time(trade._exit)
+
+    entry_time_iso = entry_time.isoformat()
+    exit_time_iso = exit_time.isoformat()
+
     payload = {
         "parent": {"database_id": NOTION_DATABASE_ID},
         "properties": {
             'Name': {
                 "title": [
-                    {
-                        "text": {"content": f"{trade.symbol} {trade.side} {trade._exit}"}
-                    }
+                    {"text": {"content": f"{trade.symbol} {trade.side} {exit_time_iso}"}}
                 ]
             },
             "Position ID": {"number": float(trade.position_id)},
@@ -89,12 +106,14 @@ def send_to_notion(trade):
             "Entry Price": {"number": float(trade.entry_price)},
             "Exit Price": {"number": float(trade.exit_price)},
             "Profit": {"number": float(trade.profit)},
-            "Trade Time": {"date": {"start": entry_time, "end": exit_time}},
-            # "Duration (seconds)": {"number": float(trade.duration) if hasattr(trade, 'duration') else None},
+            "Trade Time": {
+                "date": {
+                    "start": entry_time_iso,
+                    "end": exit_time_iso
+                }
+            },
         }
     }
-    
-    payload["properties"] = {k: v for k, v in payload["properties"].items() if v is not None}
 
     response = requests.post(url, headers=headers, json=payload)
     if response.status_code == 200:
@@ -103,18 +122,18 @@ def send_to_notion(trade):
         print(f"Failed to send trade {trade.position_id} to Notion. Status code: {response.status_code}")
         print(response.text)
 
-def get_todays_trades():
-    today = dt.datetime(2024,9,2)
-    to_date = dt.datetime.now()
+def get_todays_trades(from_date, to_date):
+    from_date = dt.datetime.combine(from_date, dt.datetime.min.time())
+    to_date = dt.datetime.combine(to_date, dt.datetime.max.time())
 
     connect_to_mt5()
 
-    deals = mt5.history_deals_get(today, to_date)
+    deals = mt5.history_deals_get(from_date, to_date)
     if deals is None:
         print("No deals, error code=", mt5.last_error())
         return []
 
-    print(f"Number of deals today ({today.date()}): {len(deals)}")
+    print(f"Number of deals from {from_date} to {to_date}: {len(deals)}")
     if len(deals) > 0:
         print("Sample deal:", deals[0]._asdict())
 
@@ -151,9 +170,6 @@ def pandify_trades(deals):
         return pd.DataFrame()
 
     df = pd.DataFrame(data)
-    print("DataFrame shape:", df.shape)
-    print("DataFrame columns:", df.columns)
-
     df = df[df.type != 2]  # Exclude balance operations
 
     def process_trades(group):
@@ -178,42 +194,6 @@ def pandify_trades(deals):
         })
     
     new_df = df.groupby('position_id').apply(process_trades).reset_index(drop=True)
-    new_df = new_df.dropna()  # Remove any None rows (incomplete trades)
+    new_df = new_df.dropna()
     
     return new_df
-
-def main():
-    today_deals = get_todays_trades()
-    df = pandify_trades(today_deals)
-
-    if df.empty:
-        print("No completed trades to process for today.")
-        return
-
-    trades = []
-    for _, i in df.iterrows():
-        # duration = (i.exit_time - i.entry_time).total_seconds()
-        trades.append(
-            trade(
-                title=i.symbol,
-                ticket=i.position_id,
-                position_id=i.position_id,
-                symbol=i.symbol,
-                side=i.side,
-                type=i.side,
-                size=i.volume,
-                entry_price=i.entry_price,
-                exit_price=i.exit_price,
-                profit=i.profit,
-                entry=i.entry_time,
-                _exit=i.exit_time,
-                # duration=duration
-            )
-        )
-    
-    for t in trades:
-        send_to_notion(t)
-        time.sleep(1)
-
-if __name__ == "__main__":
-    main()

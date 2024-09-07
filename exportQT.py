@@ -12,7 +12,6 @@ class TradeFetcherUI(QWidget):
     def initUI(self):
         self.setWindowTitle('MetaTrader 5 Trade Exporter')
 
-        # Main layout
         layout = QVBoxLayout()
 
         # From Date picker
@@ -31,7 +30,6 @@ class TradeFetcherUI(QWidget):
         self.export_button = QPushButton('Export Trades to Notion')
         self.export_button.clicked.connect(self.export_trades)
 
-        # Add widgets to layout
         layout.addWidget(self.from_date_label)
         layout.addWidget(self.from_date_input)
         layout.addWidget(self.to_date_label)
@@ -45,7 +43,8 @@ class TradeFetcherUI(QWidget):
         to_date = self.to_date_input.date().toPyDate()
 
         try:
-            deals = get_todays_trades()  
+            # Pass the selected date range to get_todays_trades
+            deals = get_todays_trades(from_date, to_date)
             if not deals:
                 QMessageBox.information(self, 'No Trades', 'No trades found for the selected date range.')
                 return
@@ -54,7 +53,6 @@ class TradeFetcherUI(QWidget):
             if trades_df.empty:
                 QMessageBox.information(self, 'No Trades', 'No completed trades to process.')
                 return
-
 
             for _, row in trades_df.iterrows():
                 new_trade = trade(
@@ -74,7 +72,7 @@ class TradeFetcherUI(QWidget):
                 send_to_notion(new_trade)
 
             QMessageBox.information(self, 'Success', 'Trades exported to Notion successfully!')
-        
+
         except Exception as e:
             QMessageBox.critical(self, 'Error', f'Failed to export trades: {str(e)}')
 
