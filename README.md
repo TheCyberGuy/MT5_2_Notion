@@ -54,6 +54,7 @@ pandas
 python-dotenv
 pytz
 requests
+datetime
 ```
 
 ### 4. lépés: MetaTrader 5 beállítása
