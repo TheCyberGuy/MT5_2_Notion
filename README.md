@@ -14,7 +14,8 @@ Ez a projekt lehetővé teszi, hogy a MetaTrader 5 kereskedési adatait egyszer�
 - Notion API integráció
 - PyQt5 (grafikus felülethez)
 - MetaTrader 5 Python csomag
-- Megfelelő schema az adatbázisban, azaz ugyanezek a tulajdonságok legyenek, [mint itt](https://jumpy-barometer-248.notion.site/Trade-Journal-ef34d11522b6453db8eee63d668b3aed)
+- Megfelelő schema az adatbázisban, azaz ugyanezek a tulajdonságok legyenek, [mint itt](https://jumpy-barometer-248.notion.site/Trade-Journal-ef34d11522b6453db8eee63d668b3aed), név és kis és nagybetűk számítanak
+- Ha szeretnéd az adatok neveit átírni keress meg discordon
 
 ## Telepítés
 
