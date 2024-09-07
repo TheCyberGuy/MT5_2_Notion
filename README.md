@@ -1,11 +1,11 @@
 # MetaTrader 5 Kereskedési Adatok Exportálása Notion-be
 
-Ez a projekt lehetővé teszi, hogy a MetaTrader 5 kereskedési adatait egyszerű grafikus felületen keresztül (PyQt5 segítségével) exportáld a Notion-be. Kiválaszthatsz egy időintervallumot a kereskedések lekéréséhez, majd azokat automatikusan küldheted egy Notion adatbázisba.
+Ez a projekt lehetővé teszi, hogy a MetaTrader 5 kereskedési adatait egyszerű grafikus felületen keresztül exportáld a Notion-be. Kiválaszthatsz egy időintervallumot a kereskedések lekéréséhez, majd azokat automatikusan küldheted egy Notion adatbázisba.
 
 ## Főbb funkciók
 - Kereskedések exportálása a MetaTrader 5-ből egy kiválasztott időintervallumon belül.
 - Kereskedések közvetlen küldése a Notion adatbázisba.
-- Az idő konverziója New York-i időre (3 órás eltolással).
+- Az idő konverziója New York-i időre.
 - Kereskedési adatok megjelenítése egy tiszta felületen.
 
 ## Követelmények
@@ -14,6 +14,7 @@ Ez a projekt lehetővé teszi, hogy a MetaTrader 5 kereskedési adatait egyszer�
 - Notion API integráció
 - PyQt5 (grafikus felülethez)
 - MetaTrader 5 Python csomag
+- Megfelelő schema az adatbázisban, azaz ugyanezek a tulajdonságok legyenek, [mint itt](https://jumpy-barometer-248.notion.site/Trade-Journal-ef34d11522b6453db8eee63d668b3aed)
 
 ## Telepítés
 
