@@ -81,7 +81,7 @@ NOTION_API_KEY=your_notion_api_key_here
 
 #### Hogyan találhatod meg a Database ID-t:
 
-1. Nyisd meg a Notion-ben azt az adatbázist, ahová exportálni szeretnéd a kereskedési adatokat.
+1. Nyisd meg a Notion webes felületén az adatbázist, ahová exportálni szeretnéd a kereskedési adatokat.
 2. Másold ki az adatbázis URL-jét. Az URL a következőképp fog kinézni:
 
    ```
@@ -97,9 +97,9 @@ NOTION_DATABASE_ID=your_notion_database_id_here
 #### Hogyan csatolhatod az integrációt az adott adatbázishoz:
 
 1. Nyisd meg a Notion-ben azt az adatbázist, amit használni szeretnél az exportáláshoz.
-2. Kattints a jobb felső sarokban található "Share" (Megosztás) gombra.
-3. A megjelenő ablakban keresd meg az integráció nevét, amelyet a "Invite" (Meghívás) gomb alatt találsz. Ha nem látod az integrációdat, írd be a nevét a keresősávba.
-4. Kattints az integrációra, majd nyomd meg az "Invite" gombot. Ezzel az integráció hozzáférést kap az adatbázisodhoz, és képes lesz adatokat írni bele.
+2. Kattints a jobb felső sarokban található 3 pöttyre a "New" gomb mellett.
+3. A megjelenő ablakban keresd meg a Customize és az adatbázisod nevét, nyomj rá.
+4. A Connactions menüpont alatt keresd az integrációdat vagy keressél rá név szerint. Ez lehet kicsit macerás! 
 
 ### 6. lépés: A program futtatása
 
@@ -121,7 +121,7 @@ Ez elindítja a grafikus felületet, ahol kiválaszthatod az időintervallumot �
 
 - Győződj meg róla, hogy a MetaTrader 5 csatlakoztatva van a brókeredhez.
 - Ellenőrizd, hogy a megfelelő API kulcs és adatbázis-azonosító szerepel-e a `.env` fájlban.
-- Győződj meg róla, hogy minden függőség telepítve van és naprakész a `pip list` parancs segítségével.
+- Győződj meg róla, hogy minden modul telepítve van és naprakész a `pip list` parancs segítségével.
 
 ## Licenc
 
