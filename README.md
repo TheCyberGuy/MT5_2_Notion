@@ -96,7 +96,7 @@ NOTION_API_KEY=your_notion_api_key_here
 NOTION_DATABASE_ID=your_notion_database_id_here
 ```
 
-#### Hogyan csatolhatod az integrációt az adott adatbázishoz:
+#### Hogyan kötheted az integrációt az adott adatbázishoz:
 
 1. Nyisd meg a Notion-ben azt az adatbázist, amit használni szeretnél az exportáláshoz.
 2. Kattints a jobb felső sarokban található 3 pöttyre a "New" gomb mellett.
