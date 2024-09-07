@@ -1,51 +1,129 @@
-Íme a fordítás, megőrizve a Markdown formátumot:
+# MetaTrader 5 Kereskedési Adatok Exportálása Notion-be
 
-# MT5 to Notion Trade Exporter beállítása
+Ez a projekt lehetővé teszi, hogy a MetaTrader 5 kereskedési adatait egyszerű grafikus felületen keresztül (PyQt5 segítségével) exportáld a Notion-be. Kiválaszthatsz egy időintervallumot a kereskedések lekéréséhez, majd azokat automatikusan küldheted egy Notion adatbázisba.
 
-Ez az útmutató végigvezet a MT5 to Notion Trade Exporter alkalmazás beállításának folyamatán, beleértve a Notion API konfigurálását és a szükséges környezeti változók beállítását.
+## Főbb funkciók
+- Kereskedések exportálása a MetaTrader 5-ből egy kiválasztott időintervallumon belül.
+- Kereskedések közvetlen küldése a Notion adatbázisba.
+- Az idő konverziója New York-i időre (3 órás eltolással).
+- Kereskedési adatok megjelenítése egy tiszta felületen.
 
 ## Követelmények
+- **Python 3.8+**
+- MetaTrader 5
+- Notion API integráció
+- PyQt5 (grafikus felülethez)
+- MetaTrader 5 Python csomag
 
-A kezdés előtt győződj meg róla, hogy a következő programok telepítve vannak a rendszeredre:
+## Telepítés
 
-- Python 3.x
-- MetaTrader 5 (MT5) telepítve és konfigurálva
-- Hozzáférés a Notion API-hoz, valamint egy Notion adatbázis a kereskedési adatok tárolására
-- `dotenv` és `tkcalendar` Python könyvtárak (telepítés: `pip install python-dotenv tkcalendar`)
+### 1. lépés: Telepítsd a Python 3.8+ verzióját
 
-## 1. lépés: Notion API beállítása
+Győződj meg róla, hogy a Python 3.8 vagy újabb verziója telepítve van. A hivatalos Python weboldalról letöltheted: [Python letöltések](https://www.python.org/downloads/)
 
-Ahhoz, hogy a Notionnal az API-jukon keresztül tudj kommunikálni, API kulcsot kell generálnod, és meg kell szerezned annak az adatbázisnak a **Database ID**-jét, amelybe a kereskedési adatokat szeretnéd menteni.
+Ellenőrizheted a Python telepítését a következő parancs futtatásával a terminálban:
 
-### 1.1 Notion integráció létrehozása (API kulcs)
+```bash
+python --version
+```
 
-1. Látogass el a [Notion Fejlesztői Oldalára](https://www.notion.so/my-integrations).
-2. Kattints a **"Create New Integration"** gombra.
-3. Töltsd ki a szükséges adatokat, például az integrációd nevét.
-4. A létrehozás után kapni fogsz egy **"Internal Integration Token"**-t, amely az API kulcsod lesz.
-5. Ezt az API kulcsot tárold biztonságosan.
+### 2. lépés: A projekt klónozása
 
-### 1.2 Az adatbázis megosztása az integrációval
+Klónozd a projektet a helyi gépedre:
 
-1. Menj a Notionba, és hozz létre egy új adatbázist (vagy használj egy meglévőt), amelyben a kereskedési adatokat szeretnéd tárolni.
-2. Kattints a **Share** gombra a jobb felső sarokban.
-3. Oszd meg az adatbázist az általad létrehozott **Integrációval** a nevére keresve.
-4. Másold ki az **Database ID**-t az URL-ből:
-   - Az adatbázis URL-je valahogy így néz ki:
-     ```
-     https://www.notion.so/YourWorkspace/Database-Name-158499c762eb455fb2c297ede800ae5b
-     ```
-   - Az utolsó `/` utáni karakterlánc a **Database ID** (`158499c762eb455fb2c297ede800ae5b` ebben a példában).
+```bash
+git clone https://github.com/your-username/metatrader5-trade-exporter.git
+cd metatrader5-trade-exporter
+```
 
-## 2. lépés: Környezeti változók beállítása
+### 3. lépés: Függőségek telepítése
 
-A **Notion API kulcs** és **Database ID** biztonságos tárolásához környezeti változókat kell beállítanod. Ezeket a változókat egy `.env` fájlból fogjuk betölteni.
+Használd a mellékelt `requirements.txt` fájlt a szükséges Python függőségek telepítéséhez:
 
-### 2.1 `.env` fájl létrehozása
+```bash
+pip install -r requirements.txt
+```
 
-1. A projekted gyökérkönyvtárában hozz létre egy `.env` nevű fájlt.
-2. Add hozzá az alábbi sorokat a fájlhoz, a helyőrző értékek helyett a saját Notion API kulcsodat és Database ID-dat használd:
-   ```bash
-   NOTION_API_KEY=your_notion_api_key_here
-   NOTION_DATABASE_ID=your_database_id_here
+Győződj meg róla, hogy a `requirements.txt` fájl a következőket (vagy hasonlókat) tartalmazza:
+
+```txt
+PyQt5
+MetaTrader5
+pandas
+python-dotenv
+pytz
+requests
+```
+
+### 4. lépés: MetaTrader 5 beállítása
+
+1. Telepítsd a **MetaTrader 5** platformot a gépedre.
+2. Bizonyosodj meg róla, hogy a MetaTrader 5 megfelelően van konfigurálva és csatlakozik a bróker fiókodhoz.
+
+Ha a MetaTrader 5 Python csomag nincs benne a `requirements.txt` fájlban, telepítsd azt a pip segítségével:
+
+```bash
+pip install MetaTrader5
+```
+
+### 5. lépés: Notion API beállítása
+
+#### Hogyan hozz létre Notion API integrációt:
+
+1. Nyisd meg a [Notion API oldalát](https://developers.notion.com/), és jelentkezz be a fiókodba.
+2. Kattints a "My integrations" gombra a jobb felső sarokban, majd válaszd a "New integration" lehetőséget.
+3. Nevezd el az integrációdat, és válaszd ki a workspace-t, amelyben használni szeretnéd. Ezután kattints a "Submit" gombra.
+4. Az API kulcsodat az integráció létrehozása után fogod megkapni. Ezt az API kulcsot kell elhelyezned a `.env` fájlban az alábbi formában:
+
+```env
+NOTION_API_KEY=your_notion_api_key_here
+```
+
+#### Hogyan találhatod meg a Database ID-t:
+
+1. Nyisd meg a Notion-ben azt az adatbázist, ahová exportálni szeretnéd a kereskedési adatokat.
+2. Másold ki az adatbázis URL-jét. Az URL a következőképp fog kinézni:
+
    ```
+   https://www.notion.so/workspace/DatabaseName-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+
+3. Az `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` része az URL-nek a Database ID. Ezt az értéket helyezd a `.env` fájlban a következő sorba:
+
+```env
+NOTION_DATABASE_ID=your_notion_database_id_here
+```
+
+#### Hogyan csatolhatod az integrációt az adott adatbázishoz:
+
+1. Nyisd meg a Notion-ben azt az adatbázist, amit használni szeretnél az exportáláshoz.
+2. Kattints a jobb felső sarokban található "Share" (Megosztás) gombra.
+3. A megjelenő ablakban keresd meg az integráció nevét, amelyet a "Invite" (Meghívás) gomb alatt találsz. Ha nem látod az integrációdat, írd be a nevét a keresősávba.
+4. Kattints az integrációra, majd nyomd meg az "Invite" gombot. Ezzel az integráció hozzáférést kap az adatbázisodhoz, és képes lesz adatokat írni bele.
+
+### 6. lépés: A program futtatása
+
+A program futtatásához használd a következő parancsot:
+
+```bash
+python exportQT.py
+```
+
+Ez elindítja a grafikus felületet, ahol kiválaszthatod az időintervallumot és exportálhatod a kereskedéseket.
+
+## Használat
+
+1. **Időintervallum kiválasztása**: Használd a dátumválasztókat egy "Kezdő dátum" és egy "Befejező dátum" kiválasztásához.
+2. **Kereskedések exportálása**: Kattints az "Exportálás Notion-be" gombra, hogy lekérdezd a kereskedéseket az adott időintervallumból, majd küldd őket a Notion adatbázisba.
+3. **Siker/hiba visszajelzés**: Üzenetablakban kapod a visszajelzést a sikeres vagy sikertelen exportálásról.
+
+## Hibakeresés
+
+- Győződj meg róla, hogy a MetaTrader 5 csatlakoztatva van a brókeredhez.
+- Ellenőrizd, hogy a megfelelő API kulcs és adatbázis-azonosító szerepel-e a `.env` fájlban.
+- Győződj meg róla, hogy minden függőség telepítve van és naprakész a `pip list` parancs segítségével.
+
+## Licenc
+
+Ez a projekt MIT licenc alatt van kiadva. Részletekért lásd a [LICENSE](LICENSE) fájlt.
+
